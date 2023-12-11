@@ -1,16 +1,35 @@
 'use client';
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function AddTopic() {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
-
-    const handleSubmit = (e) => {
+    const router = useRouter();
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!title || !description) {
             alert("Title n Desc Required");
             return;
+        }
+        try {
+            const res = await fetch("http://localhost:3000/api/topics/",{
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json", // <-- Fix: Typo in "application"
+                },
+                body: JSON.stringify({ title, description}),
+            });
+            if(res.ok) {
+                router.refresh();
+                router.push('/');
+            } else {
+                throw new Error("failed to create topic");
+            }
+
+        } catch (error) {
+            console.log(error);
         }
     }
 
